@@ -1,0 +1,7 @@
+node_modules
+.env
+database.sqlite
+truestate_assignment_dataset.csv
+logs
+*.log
+.DS_Store
