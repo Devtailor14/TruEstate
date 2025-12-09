@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: 'https://truestate-85un.onrender.com/api',
     paramsSerializer: params => {
         const parts = [];
         Object.keys(params).forEach(key => {
