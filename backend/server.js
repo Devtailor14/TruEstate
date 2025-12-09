@@ -5,10 +5,18 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 10000;
+
+const frontendURL = 'https://truestate-frontend-2jbm.onrender.com'; // ⚠️ REPLACE THIS
+const corsOptions = {
+    origin: frontendURL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
+    credentials: true // If you use cookies/sessions later
+};
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Basic Route
