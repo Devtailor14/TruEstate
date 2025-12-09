@@ -11,8 +11,8 @@ const SearchBar = ({ value, onChange }) => {
                 </div>
                 <input
                     type="text"
-                    className="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-slate-400"
-                    placeholder="Search by name or phone..."
+                    className="block w-full p-2.5 pl-10 text-sm text-slate-900 border border-slate-200 rounded-lg bg-gray-100 focus:bg-white outline-none transition-all placeholder-slate-400"
+                    placeholder="Name, Phone no."
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                 />

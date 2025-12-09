@@ -66,6 +66,62 @@ const FilterChip = ({ label }) => (
     </button>
 );
 
+const RangeDropdown = ({ title, minVal, maxVal, onMinChange, onMaxChange, type = "number", align = "left", minLabel = "Min", maxLabel = "Max" }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const hasValue = minVal || maxVal;
+
+    return (
+        <div className="relative group" ref={dropdownRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className={`flex items-center justify-between px-4 py-2 rounded-md text-sm font-medium h-9 min-w-max transition-colors ${hasValue ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-slate-700 hover:bg-gray-200'}`}
+            >
+                <span>{title}</span>
+                <svg className={`w-4 h-4 ml-2 text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+
+            {isOpen && (
+                <div className={`absolute top-full ${align === 'right' ? 'right-0' : 'left-0'} mt-2 w-64 bg-white border border-slate-200 rounded-lg shadow-lg z-50 p-4`}>
+                    <div className="flex gap-2">
+                        <div className="flex-1">
+                            <label className="block text-xs font-medium text-slate-500 mb-1">{minLabel}</label>
+                            <input
+                                type={type}
+                                className="w-full p-2 border border-slate-300 rounded text-sm"
+                                value={minVal || ''}
+                                onChange={(e) => onMinChange(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-xs font-medium text-slate-500 mb-1">{maxLabel}</label>
+                            <input
+                                type={type}
+                                className="w-full p-2 border border-slate-300 rounded text-sm"
+                                value={maxVal || ''}
+                                onChange={(e) => onMaxChange(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 const FilterBar = ({ filters, setFilters, meta, resetFilters, sort, onSortChange }) => {
 
     const handleFilterChange = (key) => (val) => {
@@ -74,6 +130,15 @@ const FilterBar = ({ filters, setFilters, meta, resetFilters, sort, onSortChange
 
     return (
         <div className="flex flex-wrap items-center gap-3 mb-6">
+
+            {/* Reset Button */}
+            <button
+                onClick={resetFilters}
+                className="flex items-center justify-center w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-md text-slate-500 transition-colors"
+                title="Reset Filters"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
 
             <FilterDropdown
                 title="Customer Region"
@@ -89,7 +154,13 @@ const FilterBar = ({ filters, setFilters, meta, resetFilters, sort, onSortChange
                 onChange={handleFilterChange('genders')}
             />
 
-            <FilterChip label="Age Range" />
+            <RangeDropdown
+                title="Age Range"
+                minVal={filters.ageMin}
+                maxVal={filters.ageMax}
+                onMinChange={handleFilterChange('ageMin')}
+                onMaxChange={handleFilterChange('ageMax')}
+            />
 
             <FilterDropdown
                 title="Product Category"
@@ -98,7 +169,12 @@ const FilterBar = ({ filters, setFilters, meta, resetFilters, sort, onSortChange
                 onChange={handleFilterChange('categories')}
             />
 
-            <FilterChip label="Tags" />
+            <FilterDropdown
+                title="Tags"
+                options={meta.allTags || []}
+                selected={filters.tags || []}
+                onChange={handleFilterChange('tags')}
+            />
 
             <FilterDropdown
                 title="Payment Method"
@@ -107,13 +183,17 @@ const FilterBar = ({ filters, setFilters, meta, resetFilters, sort, onSortChange
                 onChange={handleFilterChange('paymentMethods')}
             />
 
-            <div className="relative">
-                {/* Date Chip */}
-                <button className="flex items-center bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium text-slate-700 h-9 transition-colors">
-                    Date
-                    <svg className="w-4 h-4 ml-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-            </div>
+            <RangeDropdown
+                title="Date"
+                minVal={filters.dateMin}
+                maxVal={filters.dateMax}
+                onMinChange={handleFilterChange('dateMin')}
+                onMaxChange={handleFilterChange('dateMax')}
+                type="date"
+                align="right"
+                minLabel="Start"
+                maxLabel="End"
+            />
 
             <div className="ml-auto flex items-center gap-2">
                 <div className="flex items-center bg-gray-100 px-4 py-2 rounded-md h-9 hover:bg-gray-200 transition-colors">
@@ -138,3 +218,4 @@ const FilterBar = ({ filters, setFilters, meta, resetFilters, sort, onSortChange
 };
 
 export default FilterBar;
+

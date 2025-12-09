@@ -14,7 +14,6 @@ function App() {
     const [page, setPage] = useState(1);
 
     useEffect(() => {
-        console.log('Filters Updated:', filters);
     }, [filters]);
 
     const queryParams = {
@@ -25,10 +24,8 @@ function App() {
         regions: filters.regions,
         categories: filters.categories,
         paymentMethods: filters.paymentMethods,
-        genders: filters.genders, // Note: Genders dropdown missing in simple FilterBar, adding if essential or sticking to Figma which showed 'Gender' dropdown. 
-        // Figma had: Region, Gender, Age, Category...
-        // I added Region, Category, Payment, Date. I should add Gender too for completeness? 
-        // Let's add Gender to FilterBar later if needed, or assume existing state carries over.
+        genders: filters.genders,
+        tags: filters.tags,
         ageMin: filters.ageMin,
         ageMax: filters.ageMax,
         dateMin: filters.dateMin,
@@ -46,10 +43,10 @@ function App() {
 
     return (
         <div className="min-h-screen bg-slate-50 flex font-sans">
-            {/* 1. Fixed Sidebar */}
+            {/* Sidebar */}
             <Sidebar />
 
-            {/* 2. Main Content Area */}
+            {/* Main Content Area */}
             <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
 
                 {/* Header: Title + Search */}
@@ -84,8 +81,6 @@ function App() {
                             data={data?.data || []}
                             pagination={data?.pagination}
                             onSort={(key) => {
-                                // Simple toggle logic within DataTable or here? 
-                                // App handles sort state.
                                 setSort(prev => ({
                                     key,
                                     direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'

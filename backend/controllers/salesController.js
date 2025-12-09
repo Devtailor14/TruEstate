@@ -24,6 +24,26 @@ const getSales = (req, res) => {
             limit = 10
         } = req.query;
 
+        // Ensure page and limit are valid numbers
+        const pageNum = Math.max(1, Number(page) || 1);
+        const limitNum = Math.max(1, Number(limit) || 10);
+
+        // Smart Swap for Ranges (if user inputs min > max)
+        let cleanAgeMin = Number(ageMin);
+        let cleanAgeMax = Number(ageMax);
+        if (!isNaN(cleanAgeMin) && !isNaN(cleanAgeMax) && cleanAgeMin > cleanAgeMax) {
+            [cleanAgeMin, cleanAgeMax] = [cleanAgeMax, cleanAgeMin];
+        } else {
+            if (isNaN(cleanAgeMin)) cleanAgeMin = ageMin ? Number(ageMin) : undefined;
+            if (isNaN(cleanAgeMax)) cleanAgeMax = ageMax ? Number(ageMax) : undefined;
+        }
+
+        let cleanDateMin = dateMin;
+        let cleanDateMax = dateMax;
+        if (cleanDateMin && cleanDateMax && cleanDateMin > cleanDateMax) {
+            [cleanDateMin, cleanDateMax] = [cleanDateMax, cleanDateMin];
+        }
+
         /**
          * Helper to normalize array parameters from query string.
          * Handles both ?param=a,b and ?param[]=a&param[]=b formats.
@@ -41,13 +61,13 @@ const getSales = (req, res) => {
         let params = [];
         let conditions = [];
 
-        // 1. Search
+        // Search
         if (q) {
             conditions.push("(customerName LIKE ? OR phoneNumber LIKE ?)");
             params.push(`%${q}%`, `%${q}%`);
         }
 
-        // 2. Filters (Multi-select)
+        // Filters (Multi-select)
         const regionList = parseList(regions);
         if (regionList && regionList.length > 0) {
             const placeholders = regionList.map(() => '?').join(',');
@@ -86,22 +106,23 @@ const getSales = (req, res) => {
         }
 
         // Range Filters
-        if (ageMin) {
+        if (cleanAgeMin !== undefined) {
             conditions.push("age >= ?");
-            params.push(ageMin);
+            params.push(cleanAgeMin);
         }
-        if (ageMax) {
+        if (cleanAgeMax !== undefined) {
             conditions.push("age <= ?");
-            params.push(ageMax);
+            params.push(cleanAgeMax);
         }
 
-        if (dateMin) {
+        if (cleanDateMin) {
             conditions.push("date >= ?");
-            params.push(dateMin);
+            params.push(cleanDateMin);
         }
-        if (dateMax) {
+        if (cleanDateMax) {
             conditions.push("date <= ?");
-            params.push(dateMax);
+            // Append end of day time to make dateMax inclusive
+            params.push(cleanDateMax + 'T23:59:59.999Z');
         }
 
         // Construct Query
@@ -111,7 +132,7 @@ const getSales = (req, res) => {
             countSql += whereClause;
         }
 
-        // 3. Sorting
+        // Sorting
         if (sort) {
             const [key, order] = sort.split(':');
             const dir = order === 'desc' ? 'DESC' : 'ASC';
@@ -126,9 +147,7 @@ const getSales = (req, res) => {
             sql += " ORDER BY date DESC, id DESC";
         }
 
-        // 4. Pagination
-        const pageNum = Number(page);
-        const limitNum = Number(limit);
+        // Pagination parameters (pageNum, limitNum) are already defined at top
         const offset = (pageNum - 1) * limitNum;
 
         sql += " LIMIT ? OFFSET ?";

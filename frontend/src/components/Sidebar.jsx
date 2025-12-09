@@ -12,7 +12,7 @@ const Sidebar = () => {
                         </div>
                         <div>
                             <h2 className="text-sm font-bold text-slate-900 leading-none">Vault</h2>
-                            <p className="text-xs text-slate-500 mt-1">Anuraag Yadav</p>
+                            <p className="text-xs text-slate-500 mt-1">Dev Tailor</p>
                         </div>
                     </div>
                     <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
